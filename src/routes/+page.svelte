@@ -13,8 +13,6 @@
   };
 
   let selected = -1;
-
-  let selection = () => (selected > -1 ? selectedScenes[selected] : emptyScene);
 </script>
 
 <div style="width:30%; float:left; height: 100%; overflow-y: scroll;">
@@ -34,14 +32,14 @@
 </div>
 <div style="width:70%; float:right;">
   {#if selected > -1}
-    <img src={`https://thumbnail../?id=${selection().id}`} alt="Thumbnail" />
+    <img src={`https://thumbnail../?id=${selectedScenes[selected]?.id}`} alt="Thumbnail" />
   {/if}
   <div>
-    <p>fileName: {selection().fileName}</p>
-    <p>Path: {selection().directory}</p>
+    <p>fileName: {selectedScenes[selected]?.fileName}</p>
+    <p>Path: {selectedScenes[selected]?.directory}</p>
     <!-- TODO: absolute path including file name -->
-    <p>Year: {selection().year || '(unknown)'}</p>
-    <p>WebSite: {selection().webSite || '(unknown)'}</p>
+    <p>Year: {selectedScenes[selected]?.year || '(unknown)'}</p>
+    <p>WebSite: {selectedScenes[selected]?.webSite || '(unknown)'}</p>
   </div>
 </div>
 
