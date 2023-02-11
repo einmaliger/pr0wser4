@@ -14,6 +14,15 @@
     "allowlist": {
       "all": false
     },
+    "cli" : {
+      "args" : [
+        {
+          "name": "database",
+          "index": 1,
+          "takesValue": true
+        }
+      ]
+    },
     "bundle": {
       "active": true,
       "category": "DeveloperTool",

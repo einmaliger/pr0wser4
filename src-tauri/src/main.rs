@@ -5,9 +5,22 @@
 
 use std::fs::read;
 use tauri::http::{method::Method,ResponseBuilder};
+mod scenedatabase;
+mod tokenizer;
+
+#[tauri::command]
+fn load(path: &str) -> Vec<scenedatabase::Scene> {
+  let database: String = std::fs::read_to_string(path).expect("File could not be opened");
+  let mut t = tokenizer::Tokenizer::new(database.as_bytes());
+  match scenedatabase::parse_database(&mut t) {
+      Ok(f) => f.film,
+      Err(e) => panic!("Error while parsing {}: {}", "input file", e)
+  }
+}
 
 fn main() {
   tauri::Builder::default()
+    .invoke_handler(tauri::generate_handler![load])
     // handler inspired by https://medium.com/@marm.nakamura/practice-rust-and-tauri-make-an-image-viewer-4-39623547b06d
     .register_uri_scheme_protocol("thumbnail", move | app, request | {
       let response = ResponseBuilder::new();

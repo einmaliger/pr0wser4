@@ -1,18 +1,33 @@
 <script lang="ts">
+  import { getMatches } from '@tauri-apps/api/cli';
+  import { invoke } from '@tauri-apps/api/tauri';
   import type Scene from '$lib/scene';
-  import selectedScenes from '$lib/testdata';
 
   const emptyScene: Scene = {
     id: -1,
-    fileName: '',
+    file_name: '',
     directory: '',
     tags: '',
-    numGirls: -1,
-    numBoys: -1,
+    num_girls: -1,
+    num_boys: -1,
     score: 0
   };
 
   let selected = -1;
+
+  let selectedScenes: Scene[] = [];
+
+  let filename = 'test.pr0';
+
+  getMatches().then((matches) => {
+    if (matches.args.database.occurrences > 0) {
+      filename = matches.args.database.value as string;
+      console.log('found argument: ' + filename);
+    }
+    invoke('load', { path: filename }).then((r) => {
+      selectedScenes = r as Scene[];
+    });
+  });
 </script>
 
 <div style="width:30%; float:left; height: 100%; overflow-y: scroll;">
@@ -25,7 +40,7 @@
           value={index}
           id="sc{scene.id}"
           bind:group={selected}
-        /><label for="sc{scene.id}">{scene.name || scene.fileName}</label>
+        /><label for="sc{scene.id}">{scene.name || scene.file_name}</label>
       </li>
     {/each}
   </ul>
@@ -35,11 +50,11 @@
     <img src={`https://thumbnail../?id=${selectedScenes[selected]?.id}`} alt="Thumbnail" />
   {/if}
   <div>
-    <p>fileName: {selectedScenes[selected]?.fileName}</p>
+    <p>fileName: {selectedScenes[selected]?.file_name}</p>
     <p>Path: {selectedScenes[selected]?.directory}</p>
     <!-- TODO: absolute path including file name -->
     <p>Year: {selectedScenes[selected]?.year || '(unknown)'}</p>
-    <p>WebSite: {selectedScenes[selected]?.webSite || '(unknown)'}</p>
+    <p>WebSite: {selectedScenes[selected]?.website || '(unknown)'}</p>
   </div>
 </div>
 

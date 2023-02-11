@@ -1,18 +1,18 @@
 export default interface Scene {
   id: number;
-  fileName: string;
+  file_name: string;
   name?: string;
   directory: string;
-  thumbFileName?: string;
-  webSite?: string;
+  thumb_file_name?: string;
+  website?: string;
   actors?: string;
-  cmdParm?: string;
+  cmd_parm?: string;
   tags: string;
   begin?: number;
   end?: number;
   year?: number;
   length?: string;
-  numGirls: number;
-  numBoys: number;
+  num_girls: number;
+  num_boys: number;
   score: number;
 }
