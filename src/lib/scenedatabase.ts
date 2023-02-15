@@ -1,4 +1,4 @@
-export default interface Scene {
+export interface Scene {
   file_name: string;
   name?: string;
   directory: string;
@@ -14,4 +14,18 @@ export default interface Scene {
   num_girls: number;
   num_boys: number;
   score: number;
+}
+
+export interface SceneDatabase {
+  base_dir: string,
+  film: Scene[]
+}
+
+export const EmptyScene: Scene = {
+  file_name: '',
+  directory: '',
+  tags: [],
+  num_girls: -1,
+  num_boys: -1,
+  score: 0
 }

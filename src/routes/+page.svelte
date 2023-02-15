@@ -1,25 +1,25 @@
 <script lang="ts">
   import { getMatches } from '@tauri-apps/api/cli';
   import { invoke } from '@tauri-apps/api/tauri';
-  import type Scene from '$lib/scene';
+  import type { Scene, SceneDatabase } from '$lib/scenedatabase';
+  import { EmptyScene } from '$lib/scenedatabase';
   import SceneInfo from './sceneinfo.svelte';
 
-  const emptyScene: Scene = {
-    file_name: '',
-    directory: '',
-    tags: [],
-    num_girls: -1,
-    num_boys: -1,
-    score: 0
-  };
-
-  let selected = -1,
+  let db: SceneDatabase | null = null,
+    selected = -1,
     selectedScenes: Scene[] = [],
     selection: Scene;
 
-  $: selection = selected >= 0 ? selectedScenes[selected] : emptyScene;
+  $: selection = selected >= 0 ? selectedScenes[selected] : EmptyScene;
 
   let filename = 'test.pr0';
+
+  function onKeyDown(e: KeyboardEvent) {
+    if(e.key === "Enter") {
+      console.log("Enter!!!");
+      invoke('play', { baseDir: db?.base_dir || '', directory: selection.directory, fileName: selection. file_name } );
+    }
+  }
 
   getMatches().then((matches) => {
     const database = matches.args.database;
@@ -27,7 +27,8 @@
       filename = database.value as string;
     }
     invoke('load', { path: filename }).then((r) => {
-      selectedScenes = r as Scene[];
+      db = r as SceneDatabase;
+      selectedScenes = db.film;
       selectedScenes.sort((a, b) => {
         const aname = a.name || a.file_name;
         const bname = b.name || b.file_name;
@@ -38,7 +39,7 @@
 </script>
 
 <div style="width: 40%;">
-  <ul>
+  <ul on:keydown={onKeyDown}>
     {#each selectedScenes as scene, index}
       <li>
         <input
@@ -53,7 +54,7 @@
   </ul>
 </div>
 <div style="width: 60%; position: fixed; right: 0; top: 0;">
-  <SceneInfo {selection} />
+  <SceneInfo base_dir={db?.base_dir || ''} {selection} />
 </div>
 
 <style>

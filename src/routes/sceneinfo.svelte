@@ -1,6 +1,7 @@
 <script lang="ts">
-  import type Scene from '$lib/scene';
+  import type { Scene } from '$lib/scenedatabase';
 
+  export let base_dir: string | null;
   export let selection: Scene;
 
   // Return displayable version of num_girls / num_boys
@@ -34,8 +35,7 @@
   </tr>
   <tr>
     <td>Path:</td>
-    <td>{selection.directory}</td>
-    <!-- TODO: absolute path including file name -->
+    <td>{(base_dir || '' ) + '/' + selection.directory}</td>
   </tr>
   <tr>
     <td>Year:</td>
