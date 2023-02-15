@@ -13,16 +13,18 @@
     score: 0
   };
 
-  let selected = -1;
+  let selected = -1,
+    selectedScenes: Scene[] = [],
+    selection: Scene;
 
-  let selectedScenes: Scene[] = [];
+  $: selection = selected >= 0 ? selectedScenes[selected] : emptyScene;
 
   let filename = 'test.pr0';
 
   getMatches().then((matches) => {
-    if (matches.args.database.occurrences > 0) {
-      filename = matches.args.database.value as string;
-      console.log('found argument: ' + filename);
+    const database = matches.args.database;
+    if (database.occurrences > 0) {
+      filename = database.value as string;
     }
     invoke('load', { path: filename }).then((r) => {
       selectedScenes = r as Scene[];
@@ -34,6 +36,7 @@
     });
   });
 
+  // Display version of num_girls / num_boys
   function numX(n: number): string | number {
     switch (n) {
       case -1:
@@ -63,77 +66,51 @@
 </div>
 <div style="width: 60%; position: fixed; right: 0; top: 0;">
   {#if selected > -1}
-    <img src={`https://thumbnail../?id=${selectedScenes[selected]?.id}`} alt="Thumbnail" />
+    <img src={`https://thumbnail../?id=${selection.id}`} alt="Thumbnail" />
   {/if}
   <div>
     <div style="display: flex;">
-      <div>{selectedScenes[selected]?.name || selectedScenes[selected]?.file_name}</div>
+      <div>{selection.name || selection.file_name}</div>
       <div style="margin-left: auto;">
-        {#if selectedScenes[selected]?.score >= 20}<img
-            src="star.svg"
-            width="16"
-            height="16"
-            alt="*"
-          />{/if}
-        {#if selectedScenes[selected]?.score >= 40}<img
-            src="star.svg"
-            width="16"
-            height="16"
-            alt="*"
-          />{/if}
-        {#if selectedScenes[selected]?.score >= 60}<img
-            src="star.svg"
-            width="16"
-            height="16"
-            alt="*"
-          />{/if}
-        {#if selectedScenes[selected]?.score >= 75}<img
-            src="star.svg"
-            width="16"
-            height="16"
-            alt="*"
-          />{/if}
-        {#if selectedScenes[selected]?.score >= 90}<img
-            src="star.svg"
-            width="16"
-            height="16"
-            alt="*"
-          />{/if}
+        {#if selection.score >= 20}<img src="star.svg" width="16" height="16" alt="*" />{/if}
+        {#if selection.score >= 40}<img src="star.svg" width="16" height="16" alt="*" />{/if}
+        {#if selection.score >= 60}<img src="star.svg" width="16" height="16" alt="*" />{/if}
+        {#if selection.score >= 75}<img src="star.svg" width="16" height="16" alt="*" />{/if}
+        {#if selection.score >= 90}<img src="star.svg" width="16" height="16" alt="*" />{/if}
       </div>
     </div>
     <table>
       <tr>
         <td>File name:</td>
-        <td>{selectedScenes[selected]?.file_name}</td>
+        <td>{selection.file_name}</td>
       </tr>
       <tr>
         <td>Path:</td>
-        <td>{selectedScenes[selected]?.directory}</td>
+        <td>{selection.directory}</td>
         <!-- TODO: absolute path including file name -->
       </tr>
       <tr>
         <td>Year:</td>
-        <td>{selectedScenes[selected]?.year || '(unknown)'}</td>
+        <td>{selection.year || '(unknown)'}</td>
       </tr>
       <tr>
         <td>Website:</td>
-        <td>{selectedScenes[selected]?.website || '(unknown)'}</td>
+        <td>{selection.website || '(unknown)'}</td>
       </tr>
       <tr>
         <td>Featuring:</td>
-        <td>{selectedScenes[selected]?.actors || '(unknown)'}</td>
+        <td>{selection.actors || '(unknown)'}</td>
       </tr>
       <tr>
         <td>Girls/Boys:</td>
-        <td
-          >{numX(selectedScenes[selected]?.num_girls)} / {numX(
-            selectedScenes[selected]?.num_boys
-          )}</td
-        >
+        <td>
+          {numX(selection.num_girls)} /
+          {numX(selection.num_boys)}
+        </td>
       </tr>
       <tr>
         <td>Tags:</td>
-        <td>{selectedScenes[selected]?.tags.join(', ')}</td>
+        <td>{selection.tags.join(', ')}</td>
       </tr>
     </table>
   </div>
