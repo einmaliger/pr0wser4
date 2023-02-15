@@ -7,7 +7,7 @@
     id: -1,
     file_name: '',
     directory: '',
-    tags: '',
+    tags: [],
     num_girls: -1,
     num_boys: -1,
     score: 0
@@ -26,11 +26,27 @@
     }
     invoke('load', { path: filename }).then((r) => {
       selectedScenes = r as Scene[];
+      selectedScenes.sort((a, b) => {
+        const aname = a.name || a.file_name;
+        const bname = b.name || b.file_name;
+        return aname.localeCompare(bname);
+      });
     });
   });
+
+  function numX(n: number): string | number {
+    switch (n) {
+      case -1:
+        return 'unknown';
+      case 9999:
+        return 'many';
+      default:
+        return n;
+    }
+  }
 </script>
 
-<div style="width:30%; float:left; height: 100%; overflow-y: scroll;">
+<div style="width: 40%;">
   <ul>
     {#each selectedScenes as scene, index}
       <li>
@@ -45,22 +61,90 @@
     {/each}
   </ul>
 </div>
-<div style="width:70%; float:right;">
+<div style="width: 60%; position: fixed; right: 0; top: 0;">
   {#if selected > -1}
     <img src={`https://thumbnail../?id=${selectedScenes[selected]?.id}`} alt="Thumbnail" />
   {/if}
   <div>
-    <p>fileName: {selectedScenes[selected]?.file_name}</p>
-    <p>Path: {selectedScenes[selected]?.directory}</p>
-    <!-- TODO: absolute path including file name -->
-    <p>Year: {selectedScenes[selected]?.year || '(unknown)'}</p>
-    <p>WebSite: {selectedScenes[selected]?.website || '(unknown)'}</p>
+    <div style="display: flex;">
+      <div>{selectedScenes[selected]?.name || selectedScenes[selected]?.file_name}</div>
+      <div style="margin-left: auto;">
+        {#if selectedScenes[selected]?.score >= 20}<img
+            src="star.svg"
+            width="16"
+            height="16"
+            alt="*"
+          />{/if}
+        {#if selectedScenes[selected]?.score >= 40}<img
+            src="star.svg"
+            width="16"
+            height="16"
+            alt="*"
+          />{/if}
+        {#if selectedScenes[selected]?.score >= 60}<img
+            src="star.svg"
+            width="16"
+            height="16"
+            alt="*"
+          />{/if}
+        {#if selectedScenes[selected]?.score >= 75}<img
+            src="star.svg"
+            width="16"
+            height="16"
+            alt="*"
+          />{/if}
+        {#if selectedScenes[selected]?.score >= 90}<img
+            src="star.svg"
+            width="16"
+            height="16"
+            alt="*"
+          />{/if}
+      </div>
+    </div>
+    <table>
+      <tr>
+        <td>File name:</td>
+        <td>{selectedScenes[selected]?.file_name}</td>
+      </tr>
+      <tr>
+        <td>Path:</td>
+        <td>{selectedScenes[selected]?.directory}</td>
+        <!-- TODO: absolute path including file name -->
+      </tr>
+      <tr>
+        <td>Year:</td>
+        <td>{selectedScenes[selected]?.year || '(unknown)'}</td>
+      </tr>
+      <tr>
+        <td>Website:</td>
+        <td>{selectedScenes[selected]?.website || '(unknown)'}</td>
+      </tr>
+      <tr>
+        <td>Featuring:</td>
+        <td>{selectedScenes[selected]?.actors || '(unknown)'}</td>
+      </tr>
+      <tr>
+        <td>Girls/Boys:</td>
+        <td
+          >{numX(selectedScenes[selected]?.num_girls)} / {numX(
+            selectedScenes[selected]?.num_boys
+          )}</td
+        >
+      </tr>
+      <tr>
+        <td>Tags:</td>
+        <td>{selectedScenes[selected]?.tags.join(', ')}</td>
+      </tr>
+    </table>
   </div>
 </div>
 
 <style>
   img {
     max-width: 100%;
+  }
+  ul {
+    padding: 0;
   }
   li {
     list-style: none;

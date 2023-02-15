@@ -7,7 +7,7 @@ export default interface Scene {
   website?: string;
   actors?: string;
   cmd_parm?: string;
-  tags: string;
+  tags: string[];
   begin?: number;
   end?: number;
   year?: number;

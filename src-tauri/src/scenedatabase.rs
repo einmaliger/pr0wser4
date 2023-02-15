@@ -28,6 +28,7 @@ pub struct Scene {
     pub length: Option<String>,
     pub num_girls: i32,
     pub num_boys: i32,
+    pub score: i32,
 }
 
 impl Scene {
@@ -101,6 +102,7 @@ impl Scene {
             length: val.0.remove("length"),
             num_girls: extract_number(&mut val, "numGirls")?,
             num_boys: extract_number(&mut val, "numBoys")?,
+            score: val.1.remove("score").unwrap_or(0),
         } )
     }
 }
