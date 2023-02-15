@@ -13,7 +13,6 @@ pub struct SceneDatabase {
 
 #[derive(Deserialize,Serialize)]
 pub struct Scene {
-    pub id: i32,
     pub file_name: String,
     pub name: Option<String>,
     pub directory: String,
@@ -32,7 +31,7 @@ pub struct Scene {
 }
 
 impl Scene {
-    fn from_tokenizer(t: &'_ mut tokenizer::Tokenizer, id: i32) -> Result<Scene, ParserError> {
+    fn from_tokenizer(t: &'_ mut tokenizer::Tokenizer) -> Result<Scene, ParserError> {
         type Maps = (HashMap<String, String>, HashMap<String, i32>);
 
         // loop to get a list of key-value pairs.
@@ -87,7 +86,6 @@ impl Scene {
         }
 
         Ok( Scene {
-            id,
             file_name: extract_string(&mut val, "fileName")?,
             name: val.0.remove("name"),
             directory: extract_string(&mut val, "directory")?,
@@ -126,19 +124,13 @@ pub fn parse_database(mut t: &'_ mut tokenizer::Tokenizer) -> Result<SceneDataba
 
     let mut films = Vec::<Scene>::new();
 
-    let mut id: i32 = 0;
-
     while Token::EOF != t.t {
         t.eat(&Token::CHAR(b'{'))?;
-        match Scene::from_tokenizer(&mut t, id) {
+        match Scene::from_tokenizer(&mut t) {
             Ok(film) => { films.push(film); },
             Err(e) => { return Err(e); }
         }
         t.eat(&Token::CHAR(b'}'))?;
-        id += 1;
-        if id < 0  {
-            panic!("Too many scenes in database (i32 overflow)");
-        }
     }
 
     Ok(SceneDatabase{base_dir, film: films})

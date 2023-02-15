@@ -4,7 +4,6 @@
   import type Scene from '$lib/scene';
 
   const emptyScene: Scene = {
-    id: -1,
     file_name: '',
     directory: '',
     tags: [],
@@ -36,7 +35,7 @@
     });
   });
 
-  // Display version of num_girls / num_boys
+  // Return displayable version of num_girls / num_boys
   function numX(n: number): string | number {
     switch (n) {
       case -1:
@@ -57,16 +56,16 @@
           type="radio"
           name="scenelist"
           value={index}
-          id="sc{scene.id}"
+          id="sc{index}"
           bind:group={selected}
-        /><label for="sc{scene.id}">{scene.name || scene.file_name}</label>
+        /><label for="sc{index}">{scene.name || scene.file_name}</label>
       </li>
     {/each}
   </ul>
 </div>
 <div style="width: 60%; position: fixed; right: 0; top: 0;">
   {#if selected > -1}
-    <img src={`https://thumbnail../?id=${selection.id}`} alt="Thumbnail" />
+    <img src={`https://thumbnail../?id=x`} alt="Thumbnail" />
   {/if}
   <div>
     <div style="display: flex;">

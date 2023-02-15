@@ -1,5 +1,4 @@
 export default interface Scene {
-  id: number;
   file_name: string;
   name?: string;
   directory: string;
