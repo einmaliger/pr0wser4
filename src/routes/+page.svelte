@@ -2,6 +2,7 @@
   import { getMatches } from '@tauri-apps/api/cli';
   import { invoke } from '@tauri-apps/api/tauri';
   import type Scene from '$lib/scene';
+  import SceneInfo from './sceneinfo.svelte';
 
   const emptyScene: Scene = {
     file_name: '',
@@ -34,18 +35,6 @@
       });
     });
   });
-
-  // Return displayable version of num_girls / num_boys
-  function numX(n: number): string | number {
-    switch (n) {
-      case -1:
-        return 'unknown';
-      case 9999:
-        return 'many';
-      default:
-        return n;
-    }
-  }
 </script>
 
 <div style="width: 40%;">
@@ -64,61 +53,10 @@
   </ul>
 </div>
 <div style="width: 60%; position: fixed; right: 0; top: 0;">
-  {#if selected > -1}
-    <img src={`https://thumbnail../?id=x`} alt="Thumbnail" />
-  {/if}
-  <div>
-    <div style="display: flex;">
-      <div>{selection.name || selection.file_name}</div>
-      <div style="margin-left: auto;">
-        {#if selection.score >= 20}<img src="star.svg" width="16" height="16" alt="*" />{/if}
-        {#if selection.score >= 40}<img src="star.svg" width="16" height="16" alt="*" />{/if}
-        {#if selection.score >= 60}<img src="star.svg" width="16" height="16" alt="*" />{/if}
-        {#if selection.score >= 75}<img src="star.svg" width="16" height="16" alt="*" />{/if}
-        {#if selection.score >= 90}<img src="star.svg" width="16" height="16" alt="*" />{/if}
-      </div>
-    </div>
-    <table>
-      <tr>
-        <td>File name:</td>
-        <td>{selection.file_name}</td>
-      </tr>
-      <tr>
-        <td>Path:</td>
-        <td>{selection.directory}</td>
-        <!-- TODO: absolute path including file name -->
-      </tr>
-      <tr>
-        <td>Year:</td>
-        <td>{selection.year || '(unknown)'}</td>
-      </tr>
-      <tr>
-        <td>Website:</td>
-        <td>{selection.website || '(unknown)'}</td>
-      </tr>
-      <tr>
-        <td>Featuring:</td>
-        <td>{selection.actors || '(unknown)'}</td>
-      </tr>
-      <tr>
-        <td>Girls/Boys:</td>
-        <td>
-          {numX(selection.num_girls)} /
-          {numX(selection.num_boys)}
-        </td>
-      </tr>
-      <tr>
-        <td>Tags:</td>
-        <td>{selection.tags.join(', ')}</td>
-      </tr>
-    </table>
-  </div>
+  <SceneInfo {selection} />
 </div>
 
 <style>
-  img {
-    max-width: 100%;
-  }
   ul {
     padding: 0;
   }
