@@ -1,7 +1,7 @@
 <script lang="ts">
   import type { Scene } from '$lib/scenedatabase';
 
-  export let base_dir: string | null;
+  export let base_dir: string;
   export let selection: Scene;
 
   // Return displayable version of num_girls / num_boys
@@ -17,7 +17,14 @@
   }
 </script>
 
-<img src={`https://thumbnail../?id=x`} alt="Thumbnail" />
+<img
+  src={`https://screenshot../?base_dir=${base_dir}&directory=${selection.directory}&${
+    selection.thumb_file_name
+      ? 'thumb_file_name=' + selection.thumb_file_name
+      : 'file_name=' + selection.file_name
+  }`}
+  alt="Thumbnail"
+/>
 <div style="display: flex;">
   <div>{selection.name || selection.file_name}</div>
   <div style="margin-left: auto;">
@@ -35,7 +42,7 @@
   </tr>
   <tr>
     <td>Path:</td>
-    <td>{(base_dir || '' ) + '/' + selection.directory}</td>
+    <td>{(base_dir || '') + '/' + selection.directory}</td>
   </tr>
   <tr>
     <td>Year:</td>
