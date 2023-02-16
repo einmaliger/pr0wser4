@@ -17,8 +17,8 @@ export interface Scene {
 }
 
 export interface SceneDatabase {
-  base_dir: string,
-  film: Scene[]
+  base_dir: string;
+  film: Scene[];
 }
 
 export const EmptyScene: Scene = {
@@ -28,4 +28,4 @@ export const EmptyScene: Scene = {
   num_girls: -1,
   num_boys: -1,
   score: 0
-}
+};

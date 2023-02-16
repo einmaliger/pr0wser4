@@ -15,9 +15,12 @@
   let filename = 'test.pr0';
 
   function onKeyDown(e: KeyboardEvent) {
-    if(e.key === "Enter") {
-      console.log("Enter!!!");
-      invoke('play', { baseDir: db?.base_dir || '', directory: selection.directory, fileName: selection. file_name } );
+    if (e.key === 'Enter') {
+      invoke('play', {
+        baseDir: db?.base_dir || '',
+        directory: selection.directory,
+        fileName: selection.file_name
+      });
     }
   }
 
