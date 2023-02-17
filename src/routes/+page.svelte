@@ -4,17 +4,22 @@
   import type { Scene, SceneDatabase } from '$lib/scenedatabase';
   import { EmptyScene } from '$lib/scenedatabase';
   import SceneInfo from './sceneinfo.svelte';
-  import { AtomicSceneFilter } from '$lib/scenefilter';
+  import { SceneFilter } from '$lib/scenefilter';
 
   let db: SceneDatabase | null = null,
-    filter = new AtomicSceneFilter(),
+    filter = new SceneFilter(),
     filterString = 'score>=73',
     selectedScenes: Scene[] = [];
 
-  $: {
+  function filterChangeEvent(){
     if (db) {
+      let oldSelection = selection;
       filter.parse(filterString);
+      selected = -1;
       selectedScenes = db.film.filter((a) => filter.matches(a)); // TODO: understand why can we not simple pass filter.matches as argument?
+      if(oldSelection) {
+        selected = selectedScenes.indexOf(oldSelection);
+      }
     }
   }
 
@@ -46,12 +51,13 @@
         const bname = b.name || b.file_name;
         return aname.localeCompare(bname);
       });
+      filterChangeEvent();
     });
   });
 </script>
 
 <div style="width: 40%;">
-  <input type="text" style="width:90%" bind:value={filterString} />
+  <input type="text" style="width:90%" bind:value={filterString} on:input={filterChangeEvent}/>
   <ul on:keydown={onKeyDown}>
     {#each selectedScenes as scene, index}
       <li>

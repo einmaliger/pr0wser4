@@ -1,4 +1,111 @@
 import { type Scene, lengthToSeconds, realLength } from '$lib/scenedatabase';
+import { is_empty } from 'svelte/internal';
+
+// Note: s is always left-trimmed at the beginning of parse functions
+
+export class SceneFilter {
+  private tree: OrNode;
+
+  constructor() {
+    this.tree = new OrNode;
+  }
+
+  public parse(s: string) {
+    s.toLowerCase();
+    this.tree = new OrNode; // Let js simply drop the old one
+    this.tree.parse(s.trimStart());
+    // if this does not return an empty string, something went wrong
+  }
+
+  public matches(s: Scene): boolean {
+    return this.tree.matches(s);
+  }
+}
+
+class OrNode {
+  private nodes: AndNode[];
+
+  constructor() {this.nodes = []; }
+
+  public parse(s: string): string {
+    // Parse an and node, which is a sequence of AtomicFilters and maybe other OrNodes (inside '()')
+    // if a "or" follows, create a new andNode and continue
+    // if not, we should be at the end of the string
+    for(;;) {
+      let n = new AndNode;
+      s = n.parse(s).trimStart();
+      this.nodes.push(n);
+
+      if(s.startsWith('or ')) {
+        s = s.slice(3);
+        continue;
+      }
+
+      return s;
+    }
+    // to do: repeat
+  }
+
+  public matches(s: Scene): boolean {
+    for(const n of this.nodes) {
+      if(n.matches(s)) {
+        return true;
+      }
+    }
+    return false;
+  }
+}
+
+class AndNode {
+  private filters: AtomicSceneFilter[];
+  private nodes: OrNode[];
+
+  constructor() {this.filters = []; this.nodes = []; }
+
+  public parse(s: string): string {
+    // parse until an "or", ")" or end of string is reached, then return s (consuming a possible ')'?)
+    for(;;) {
+      if(s[0] === '(') {
+        let subtree = new OrNode;
+        s = subtree.parse(s.slice(1)).trimStart();
+        this.nodes.push(subtree);
+        if( s === '' || s[0] !== ')' ) {
+          // error! Closing bracket missing
+          console.warn('missing closing bracket');
+          return '';
+        }
+        s = s.slice(1);
+
+        continue;
+      }
+
+      let f = new AtomicSceneFilter;
+      s = f.parse(s).trimStart();
+      this.filters.push(f);
+      // remainder of a at this point:
+      //  - something starting with an 'or ' or a ')' -> return
+      //  - after a word -> continue, if something is left
+
+      if(s === '' || s.startsWith('or ') || s[0] === ')')
+        return s;
+    }
+  }
+
+  public matches(s: Scene): boolean {
+    for(const f of this.filters) {
+      if(!f.matches(s)) {
+        return false;
+      }
+    }
+
+    for(const n of this.nodes) {
+      if(!n.matches(s)) {
+        return false;
+      }
+    }
+    return true;
+  }
+}
 
 export class AtomicSceneFilter {
   constructor(private negate: boolean = false) {}
@@ -14,12 +121,7 @@ export class AtomicSceneFilter {
   }
 
   public parse(s: string): string {
-    this.test = (s) => true; // reset filter
-    this.negate = false;
-
-    s = s.trimStart();
-
-    if (!s || s[0] === ')') return s;
+    if (!s || s[0] === ')' || s.startsWith('or ')) return s;
 
     if (s[0] === '!') {
       this.negate = true;
@@ -28,7 +130,7 @@ export class AtomicSceneFilter {
 
     // Figure out the end of the first word
     let end = 0;
-    while (end < s.length && s[0] !== ' ' && s[0] !== '(') {
+    while (end < s.length && s[end] !== ' ' && s[end] !== '(' && s[end] !== ')') {
       end++;
     }
 
@@ -44,8 +146,8 @@ export class AtomicSceneFilter {
     // Much of this could be generalized. However, I am not sure how to
     // do this without losing efficiency.
     if (/[:<>=]/.test(w)) {
-      if (w.startsWith('actor:')) this.test = (s) => s.actors?.indexOf(w.slice(6)) !== -1;
-      else if (w.startsWith('website:')) this.test = (s) => s.website?.indexOf(w.slice(8)) !== -1;
+      if (w.startsWith('actor:')) this.test = (s) => !!s.actors && s.actors.indexOf(w.slice(6)) !== -1;
+      else if (w.startsWith('website:')) this.test = (s) => !!s.website && s.website.indexOf(w.slice(8)) !== -1;
       else if (w.startsWith('file:'))
         this.test = (s) =>
           s.file_name.indexOf(w.slice(5)) !== -1 || s.directory.indexOf(w.slice(5)) !== -1;
@@ -97,7 +199,8 @@ export class AtomicSceneFilter {
         else if (w.length > 5 && (w[5] === '=' || w[5] === ':'))
           this.test = (s) => s.score == +w.slice(6);
       }
-      return s;
     }
+
+    return s;
   }
 }
