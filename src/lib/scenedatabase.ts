@@ -10,7 +10,7 @@ export interface Scene {
   begin?: number;
   end?: number;
   year?: number;
-  length?: string;
+  length?: number;
   num_girls: number;
   num_boys: number;
   score: number;

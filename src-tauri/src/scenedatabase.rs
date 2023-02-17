@@ -24,7 +24,7 @@ pub struct Scene {
   pub begin: Option<i32>,
   pub end: Option<i32>,
   pub year: Option<i32>,
-  pub length: Option<String>,
+  pub length: Option<i32>,
   pub num_girls: i32,
   pub num_boys: i32,
   pub score: i32,
@@ -66,6 +66,10 @@ impl Scene {
       t.next()?;
     }
 
+    // TODO:
+    // The following three functions take val as parameter, which is always the val of this enclosing function.
+    // There should be a way to omit this parameter. Right now, this fails because of borrow rules that I seem to not
+    // understand sufficiently to fix this.
     let extract_string = |val: &mut Maps, s: &str| -> Result<String, KeyNotFoundError> {
       match val.0.remove(s) {
         Some(s) => Ok(s),
@@ -82,6 +86,39 @@ impl Scene {
           key: String::from(s),
         }),
       }
+    };
+
+    let get_time = |val: &mut Maps, s: &str| -> Option<i32> {
+      // If it's a number, return it immediately
+      let value = val.1.remove(s);
+      if value.is_some() {
+        return value;
+      }
+
+      // If it's neither a number, nor a string, return None
+      let value = val.0.remove(s);
+      if value.is_none() {
+        return None; // Cannot return value here as it is Option<String>!
+      }
+
+      // It's a string, so convert it to a number
+      let value = value.unwrap(); // TODO: understand why I need this temporary variable
+      let parts = value.split(':');
+
+      let mut result: i32 = 0;
+      for s in parts {
+        // TODO: Instead of panicking, the from_tokenizer function
+        // should return an appropriate error.
+        // Possible approach:
+        // - get_time returns a Result<Option<i32>>
+        // - the parts below that call it, need to be rearranged
+        //   to first take into account possible errors while storing
+        //   the results in temporary variables and then construct th
+        //   Ok() object.
+        result = result * 60 + s.parse::<i32>().expect("invalid time format");
+      }
+
+      Some(result)
     };
 
     // Build tags HashSet
@@ -111,10 +148,10 @@ impl Scene {
       actors: val.0.remove("actors"),
       cmd_parm: val.0.remove("cmdParm"),
       tags,
-      begin: val.1.remove("begin"),
-      end: val.1.remove("end"),
+      begin: get_time(&mut val, "begin"),
+      end: get_time(&mut val, "end"),
       year: val.1.remove("year"),
-      length: val.0.remove("length"),
+      length: get_time(&mut val, "length"),
       num_girls: extract_number(&mut val, "numGirls")?,
       num_boys: extract_number(&mut val, "numBoys")?,
       score: val.1.remove("score").unwrap_or(0),
