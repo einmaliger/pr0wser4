@@ -18,9 +18,9 @@
     }
   }
 
-  let selected = -1,
-    selection: Scene;
+  let selected = -1;
 
+  // Shortcut for selected scene
   $: selection = selected >= 0 ? selectedScenes[selected] : EmptyScene;
 
   function onKeyDown(e: KeyboardEvent) {
