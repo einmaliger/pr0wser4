@@ -29,3 +29,20 @@ export const EmptyScene: Scene = {
   num_boys: -1,
   score: 0
 };
+
+// Returns the given time to seconds
+// The time may be given like 1:00:42
+// or just a number of seconds
+export function lengthToSeconds(length: string) {
+  const components = length.split(':');
+  let result = 0;
+  for (const c of components) {
+    result = result * 60 + +c;
+  }
+  return result;
+}
+
+export function realLength(s: Scene): number {
+  if (!s.length && s.end) return s.end - (s.begin || 0);
+  else return s.length || 0;
+}
