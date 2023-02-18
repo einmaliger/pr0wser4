@@ -11,13 +11,13 @@
     filterString = 'score>=73',
     selectedScenes: Scene[] = [];
 
-  function filterChangeEvent(){
+  function filterChangeEvent() {
     if (db) {
       let oldSelection = selection;
       filter.parse(filterString);
       selected = -1;
       selectedScenes = db.film.filter((a) => filter.matches(a)); // TODO: understand why can we not simple pass filter.matches as argument?
-      if(oldSelection) {
+      if (oldSelection) {
         selected = selectedScenes.indexOf(oldSelection);
       }
     }
@@ -57,7 +57,7 @@
 </script>
 
 <div style="width: 40%;">
-  <input type="text" style="width:90%" bind:value={filterString} on:input={filterChangeEvent}/>
+  <input type="text" style="width:90%" bind:value={filterString} on:input={filterChangeEvent} />
   <ul on:keydown={onKeyDown}>
     {#each selectedScenes as scene, index}
       <li>
