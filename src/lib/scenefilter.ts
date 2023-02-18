@@ -85,7 +85,7 @@ class AndNode {
           console.warn('missing closing bracket');
           return '';
         }
-        s = s.slice(1);
+        s = s.slice(1).trimStart();
 
         continue;
       }
