@@ -206,17 +206,16 @@ export class AtomicSceneFilter {
         else if (w.length > 5 && (w[5] === '=' || w[5] === ':'))
           this.test = (s) => s.score == +w.slice(6);
       }
-    } else if(w[0] === '^') {
+    } else if (w[0] === '^') {
       // Partial filter: true if any of the tags contains the word
       const x = w.slice(1);
-      if(x !== '')
+      if (x !== '')
         this.test = (s) => {
-          for(const t of s.tags) {
-            if(t.indexOf(x) !== -1)
-             return true;
+          for (const t of s.tags) {
+            if (t.indexOf(x) !== -1) return true;
           }
           return false;
-        }
+        };
     } else {
       // General tag filter: true if any of the tags equals the word
       this.test = (s) => s.tags.includes(w);
