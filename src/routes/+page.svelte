@@ -1,7 +1,7 @@
 <script lang="ts">
   import { getMatches } from '@tauri-apps/api/cli';
   import { invoke } from '@tauri-apps/api/tauri';
-  import type { Scene, SceneDatabase } from '$lib/scenedatabase';
+  import { realLength, type Scene, type SceneDatabase } from '$lib/scenedatabase';
   import { EmptyScene } from '$lib/scenedatabase';
   import SceneInfo from './sceneinfo.svelte';
   import { SceneFilter } from '$lib/scenefilter';
@@ -33,7 +33,9 @@
       invoke('play', {
         baseDir: db?.base_dir || '',
         directory: selection.directory,
-        fileName: selection.file_name
+        fileName: selection.file_name,
+        begin: selection.begin || -1,
+        length: selection.end ? realLength(selection) : -1
       });
     }
   }

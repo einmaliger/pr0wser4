@@ -25,17 +25,25 @@ fn load(path: &str) -> SceneDatabase {
 }
 
 #[tauri::command]
-fn play(base_dir: &str, directory: &str, file_name: &str) {
+fn play(base_dir: &str, directory: &str, file_name: &str, begin: i32, length: i32) {
   let mut p = absolute_directory(base_dir, directory);
 
   p.push(file_name);
 
-  println!("Running mpv to play file \"{}\"", p.to_string_lossy());
+  println!("Running mpv to play file \"{}\" (begin: {}, length: {})", p.to_string_lossy(), begin, length);
 
-  Command::new("C:\\Program Files\\mpv\\mpv")
-    .arg(p)
-    .output()
-    .expect("Could not run mpv");
+  let mut cmd = Command::new("C:\\Program Files\\mpv\\mpv");
+  let mut cmd = cmd.arg(p);
+
+  if begin > 0 {
+    cmd = cmd.arg(format!("--start={}", begin));
+  }
+
+  if length > 0 {
+    cmd = cmd.arg(format!("--length={}", length));
+  }
+
+  cmd.output().expect("Could not run mpv");
 }
 
 fn main() {
