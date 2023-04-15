@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { Scene } from '$lib/scenedatabase';
+  import { realLength, type Scene } from '$lib/scenedatabase';
 
   export let base_dir: string;
   export let selection: Scene;
@@ -15,6 +15,22 @@
         return n;
     }
   }
+
+  function displayLength(s: Scene): string {
+    const length = realLength(s);
+    const seconds = length % 60;
+    const minutes = ((length - seconds) / 60) % 60;
+    const hours = Math.floor(length / 3600);
+
+    // There should be a more elegant way to format this
+    let result = seconds.toString();
+    if (seconds < 10) result = '0' + result;
+    result = minutes.toString() + ':' + result;
+    if (minutes < 10) result = '0' + result;
+    if (hours > 0) result = hours.toString() + ':' + result;
+
+    return result;
+  }
 </script>
 
 <img
@@ -26,13 +42,14 @@
   alt="Thumbnail"
 />
 <div style="display: flex;">
-  <div>{selection.name || selection.file_name}</div>
+  <div>{selection.name || selection.file_name} ({displayLength(selection)})</div>
   <div style="margin-left: auto;">
     {#if selection.score >= 20}<img src="star.svg" width="16" height="16" alt="*" />{/if}
     {#if selection.score >= 40}<img src="star.svg" width="16" height="16" alt="*" />{/if}
     {#if selection.score >= 60}<img src="star.svg" width="16" height="16" alt="*" />{/if}
     {#if selection.score >= 75}<img src="star.svg" width="16" height="16" alt="*" />{/if}
     {#if selection.score >= 90}<img src="star.svg" width="16" height="16" alt="*" />{/if}
+    ({selection.score})
   </div>
 </div>
 <table>
