@@ -1,5 +1,4 @@
 import { type Scene, lengthToSeconds, realLength } from '$lib/scenedatabase';
-import { is_empty } from 'svelte/internal';
 
 // Note: s is always left-trimmed at the beginning of parse functions
 

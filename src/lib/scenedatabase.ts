@@ -33,7 +33,7 @@ export const EmptyScene: Scene = {
 // Returns the given time to seconds
 // The time may be given like 1:00:42
 // or just a number of seconds
-export function lengthToSeconds(length: string) {
+export function lengthToSeconds(length: string): number {
   const components = length.split(':');
   let result = 0;
   for (const c of components) {
@@ -42,6 +42,7 @@ export function lengthToSeconds(length: string) {
   return result;
 }
 
+// The actual length of the scene in seconds
 export function realLength(s: Scene): number {
   if (!s.length && s.end) return s.end - (s.begin || 0);
   else return s.length || 0;
