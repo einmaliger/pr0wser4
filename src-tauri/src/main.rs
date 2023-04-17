@@ -48,6 +48,7 @@ fn play(base_dir: &str, directory: &str, file_name: &str, begin: i32, length: i3
 
 fn main() {
   tauri::Builder::default()
+    .plugin(tauri_plugin_window_state::Builder::default().build())
     .invoke_handler(tauri::generate_handler![load, play])
     .register_uri_scheme_protocol("screenshot", screenshot_handler)
     .run(tauri::generate_context!())
