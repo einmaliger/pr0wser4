@@ -30,7 +30,12 @@ fn play(base_dir: &str, directory: &str, file_name: &str, begin: i32, length: i3
 
   p.push(file_name);
 
-  println!("Running mpv to play file \"{}\" (begin: {}, length: {})", p.to_string_lossy(), begin, length);
+  println!(
+    "Running mpv to play file \"{}\" (begin: {}, length: {})",
+    p.to_string_lossy(),
+    begin,
+    length
+  );
 
   let mut cmd = Command::new("C:\\Program Files\\mpv\\mpv");
   let mut cmd = cmd.arg(p);
