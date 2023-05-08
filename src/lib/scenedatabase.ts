@@ -1,4 +1,5 @@
 export interface Scene {
+  id: number;
   file_name: string;
   name?: string;
   directory: string;
@@ -22,6 +23,7 @@ export interface SceneDatabase {
 }
 
 export const EmptyScene: Scene = {
+  id: -1,
   file_name: '',
   directory: '',
   tags: [],
@@ -42,7 +44,7 @@ export function lengthToSeconds(length: string): number {
   return result;
 }
 
-// The actual length of the scene in seconds
+// The length of the scene in seconds
 export function realLength(s: Scene): number {
   if (!s.length && s.end) return s.end - (s.begin || 0);
   else return s.length || 0;

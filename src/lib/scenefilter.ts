@@ -154,6 +154,7 @@ export class AtomicSceneFilter {
         this.test = (s) => !!s.actors && s.actors.indexOf(w.slice(6)) !== -1;
       else if (w.startsWith('website:'))
         this.test = (s) => !!s.website && s.website.indexOf(w.slice(8)) !== -1;
+      else if (w.startsWith('latest:')) this.test = (s) => s.id <= +w.slice(7);
       else if (w.startsWith('file:'))
         this.test = (s) =>
           s.file_name.indexOf(w.slice(5)) !== -1 || s.directory.indexOf(w.slice(5)) !== -1;

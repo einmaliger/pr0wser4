@@ -13,6 +13,7 @@ pub struct SceneDatabase {
 
 #[derive(Debug, Deserialize, Serialize)]
 pub struct Scene {
+  pub id: i32,
   pub file_name: String,
   pub name: Option<String>,
   pub directory: String,
@@ -140,6 +141,7 @@ impl Scene {
     }
 
     Ok(Scene {
+      id: -1,
       file_name: extract_string(&mut val, "fileName")?,
       name: val.0.remove("name"),
       directory: extract_string(&mut val, "directory")?,
@@ -191,6 +193,14 @@ pub fn parse_database(mut t: &'_ mut tokenizer::Tokenizer) -> Result<SceneDataba
       }
     }
     t.eat(&Token::CHAR(b'}'))?;
+  }
+
+  // Set the index such that the last entry has index 1,
+  // the one before it has index 2, and so on
+  // (useful for the "latest:" filter)
+  let size = films.len();
+  for i in 0..size {
+    films[i].id = (size - i) as i32;
   }
 
   Ok(SceneDatabase {
