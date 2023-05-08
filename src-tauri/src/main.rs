@@ -15,8 +15,13 @@ use crate::{
 use std::process::Command;
 
 #[tauri::command]
-fn load(path: &str) -> SceneDatabase {
-  let database: String = std::fs::read_to_string(path).expect("File could not be opened");
+fn load(path: &str, handle: tauri::AppHandle) -> SceneDatabase {
+  let default_file = handle.path_resolver().resolve_resource("../static/test.pr0").unwrap();
+  let dbfile = match path {
+    "" => default_file.to_str().unwrap(),
+    _ => path
+  };
+  let database: String = std::fs::read_to_string(dbfile).expect("File could not be opened");
   let mut t = tokenizer::Tokenizer::new(database.as_bytes());
   match scenedatabase::parse_database(&mut t) {
     Ok(f) => f,

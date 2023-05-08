@@ -25,7 +25,7 @@ pub fn absolute_directory(base_dir: &str, directory: &str) -> PathBuf {
 
 // handler inspired by https://medium.com/@marm.nakamura/practice-rust-and-tauri-make-an-image-viewer-4-39623547b06d
 pub fn screenshot_handler(
-  _app: &AppHandle,
+  app: &AppHandle,
   request: &Request,
 ) -> Result<tauri::http::Response, Box<dyn std::error::Error>> {
   const DEFAULT_IMAGE: &str = "../static/nothumb.jpg";
@@ -54,7 +54,7 @@ pub fn screenshot_handler(
 
   if file_name.is_empty() && thumb_file_name.is_empty() {
     // no useful information given - return the default image
-    p = PathBuf::from(DEFAULT_IMAGE);
+    p = app.path_resolver().resolve_resource(DEFAULT_IMAGE).unwrap();
   } else {
     p = absolute_directory(base_dir, directory);
 

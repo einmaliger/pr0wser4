@@ -41,7 +41,7 @@
   }
 
   getMatches().then((matches) => {
-    let filename = 'test.pr0';
+    let filename = '';
     const database = matches.args.database;
     if (database.occurrences > 0) {
       filename = database.value as string;
