@@ -16,10 +16,13 @@ use std::process::Command;
 
 #[tauri::command]
 fn load(path: &str, handle: tauri::AppHandle) -> SceneDatabase {
-  let default_file = handle.path_resolver().resolve_resource("../static/test.pr0").unwrap();
+  let default_file = handle
+    .path_resolver()
+    .resolve_resource("../static/test.pr0")
+    .unwrap();
   let dbfile = match path {
     "" => default_file.to_str().unwrap(),
-    _ => path
+    _ => path,
   };
   let database: String = std::fs::read_to_string(dbfile).expect("File could not be opened");
   let mut t = tokenizer::Tokenizer::new(database.as_bytes());
