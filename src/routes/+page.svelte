@@ -1,6 +1,7 @@
 <script lang="ts">
   import { getMatches } from '@tauri-apps/api/cli';
   import { invoke } from '@tauri-apps/api/tauri';
+  import { open } from '@tauri-apps/api/dialog';
   import { realLength, type Scene, type SceneDatabase } from '$lib/scenedatabase';
   import { EmptyScene } from '$lib/scenedatabase';
   import SceneInfo from './sceneinfo.svelte';
@@ -42,12 +43,7 @@
     }
   }
 
-  getMatches().then((matches) => {
-    let filename = '';
-    const database = matches.args.database;
-    if (database.occurrences > 0) {
-      filename = database.value as string;
-    }
+  function loadDatabase(filename: string) {
     invoke('load', { path: filename }).then((r) => {
       db = r as SceneDatabase;
       db.film.sort((a, b) => {
@@ -57,6 +53,32 @@
       });
       filterChangeEvent();
     });
+  }
+
+  async function selectDatabase() {
+    const selected = await open({
+      title: 'Select pr0wser database',
+      filters: [
+        {
+          extensions: ['pr0'],
+          name: 'pr0wser database'
+        },
+        {
+          extensions: ['*'],
+          name: 'all files'
+        }
+      ]
+    });
+    if (typeof selected === 'string') loadDatabase(selected);
+  }
+
+  getMatches().then((matches) => {
+    let filename = '';
+    const database = matches.args.database;
+    if (database.occurrences > 0) {
+      filename = database.value as string;
+    }
+    loadDatabase(filename);
   });
 </script>
 
@@ -71,9 +93,21 @@
   <SceneInfo base_dir={db?.base_dir || ''} {selection} />
 </div>
 
+<button on:click={selectDatabase}>📁</button>
+
 <style>
   input {
     position: fixed;
     width: 35%;
+  }
+
+  button {
+    position: fixed;
+    left: 16px;
+    bottom: 16px;
+    height: 60px;
+    width: 60px;
+    border: 2px solid black;
+    font-size: 36px;
   }
 </style>
