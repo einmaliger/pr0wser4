@@ -4,6 +4,7 @@
   import { realLength, type Scene, type SceneDatabase } from '$lib/scenedatabase';
   import { EmptyScene } from '$lib/scenedatabase';
   import SceneInfo from './sceneinfo.svelte';
+  import SceneSelector from './sceneselector.svelte';
   import { SceneFilter } from '$lib/scenefilter';
 
   let db: SceneDatabase | null = null,
@@ -28,6 +29,7 @@
   // Shortcut for selected scene
   $: selection = selected >= 0 ? selectedScenes[selected] : EmptyScene;
 
+  // global key events
   function onKeyDown(e: KeyboardEvent) {
     if (e.key === 'Enter') {
       invoke('play', {
@@ -58,38 +60,20 @@
   });
 </script>
 
-<div style="width: 40%;">
-  <input type="text" style="width:90%" bind:value={filterString} on:input={filterChangeEvent} />
-  <ul on:keydown={onKeyDown}>
-    {#each selectedScenes as scene, index}
-      <li>
-        <input
-          type="radio"
-          name="scenelist"
-          value={index}
-          id="sc{index}"
-          bind:group={selected}
-        /><label for="sc{index}">{scene.name || scene.file_name}</label>
-      </li>
-    {/each}
-  </ul>
+<svelte:window on:keydown={onKeyDown} />
+
+<input type="text" bind:value={filterString} on:input={filterChangeEvent} />
+
+<div style="width: 40%; padding-top: 1rem;">
+  <SceneSelector {selectedScenes} bind:selected />
 </div>
 <div style="width: 60%; position: fixed; right: 0; top: 0;">
   <SceneInfo base_dir={db?.base_dir || ''} {selection} />
 </div>
 
 <style>
-  ul {
-    padding: 0;
-  }
-  li {
-    list-style: none;
-  }
-  input[type='radio'] {
-    appearance: none;
-    -webkit-appearance: none;
-  }
-  input:checked + label {
-    background: #888;
+  input {
+    position: fixed;
+    width: 35%;
   }
 </style>
