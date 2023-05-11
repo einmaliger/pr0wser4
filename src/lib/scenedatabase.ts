@@ -15,6 +15,7 @@ export interface Scene {
   num_girls: number;
   num_boys: number;
   score: number;
+  notes?: string;
 }
 
 export interface SceneDatabase {
