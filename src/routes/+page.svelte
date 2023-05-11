@@ -96,6 +96,8 @@
 
 <button on:click={selectDatabase}>📁</button>
 
+<div id="statusbar">{selectedScenes.length} scenes match</div>
+
 <style>
   input {
     position: fixed;
@@ -110,5 +112,11 @@
     width: 60px;
     border: 2px solid black;
     font-size: 36px;
+  }
+
+  #statusbar {
+    position: fixed;
+    right: 16px;
+    bottom: 16px;
   }
 </style>
