@@ -85,10 +85,10 @@
     <td>{selection.tags.join(', ')}</td>
   </tr>
   {#if selection.notes}
-  <tr>
-    <td>Notes:</td>
-    <td>{selection.notes}</td>
-  </tr>
+    <tr>
+      <td>Notes:</td>
+      <td>{selection.notes}</td>
+    </tr>
   {/if}
 </table>
 
