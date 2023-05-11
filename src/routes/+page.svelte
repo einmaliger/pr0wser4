@@ -10,7 +10,7 @@
 
   let db: SceneDatabase | null = null,
     filter = new SceneFilter(),
-    filterString = 'score>=73',
+    filterString = '',
     selectedScenes: Scene[] = [];
 
   function filterChangeEvent() {
@@ -47,6 +47,9 @@
   function loadDatabase(filename: string) {
     invoke('load', { path: filename }).then((r) => {
       db = r as SceneDatabase;
+      if (db.def_search) {
+        filterString = db.def_search;
+      }
       db.film.sort((a, b) => {
         const aname = a.name || a.file_name;
         const bname = b.name || b.file_name;

@@ -9,6 +9,8 @@ use std::collections::{HashMap, HashSet};
 pub struct SceneDatabase {
   pub base_dir: String,
   pub film: Vec<Scene>,
+  pub def_search: Option<String>,
+  //pub tags: Vec<String>,    // may be empty, since this is optional
 }
 
 #[derive(Debug, Deserialize, Serialize)]
@@ -164,23 +166,53 @@ impl Scene {
 }
 
 pub fn parse_database(mut t: &'_ mut tokenizer::Tokenizer) -> Result<SceneDatabase, ParserError> {
+  let mut known_format = false;
+  let mut base_dir = String::new();
+  let mut def_search: Option<String> = None;
+
   t.next()?;
-  t.eat(&Token::STRING("type"))?;
-  t.eat(&Token::CHAR(b':'))?;
-  t.eat(&Token::STRING("pr0wser3"))?;
-  t.eat(&Token::STRING("baseDir"))?;
-  t.eat(&Token::CHAR(b':'))?;
 
-  let base_dir: String;
+  while t.t != Token::EOF {
+    let key = match &t.t {
+      Token::STRING(s) => s.to_string(),
+      _ => break,
+    };
 
-  match &t.t {
-    Token::STRING(s) => base_dir = s.to_string(),
-    _ => {
-      return Result::Err(expected_string_error("<base directory>", &t.t));
+    // Expect something of the form key : stringvalue
+    t.next()?;
+    t.eat(&Token::CHAR(b':'))?;
+    let value = match &t.t {
+      Token::STRING(s) => s.to_string(),
+      _ => {
+        return Result::Err(ParserError::ExpectedString);
+      }
+    };
+
+    t.next()?;
+
+    match key.as_str() {
+      "type" => {
+        if value != "pr0wser3" && value != "pr0wser4" {
+          return Result::Err(ParserError::UnknownFileFormat);
+        }
+        known_format = true;
+      }
+      "baseDir" => {
+        base_dir = value;
+      }
+      "defSearch" => {
+        def_search = Some(value);
+      }
+      _ => return Result::Err(ParserError::UnknownKey(key)),
     }
   }
 
-  t.next()?;
+  if !known_format {
+    return Result::Err(ParserError::UnknownFileFormat);
+  }
+  if base_dir.is_empty() {
+    return Result::Err(ParserError::NoBaseDir);
+  }
 
   let mut films = Vec::<Scene>::new();
 
@@ -208,6 +240,7 @@ pub fn parse_database(mut t: &'_ mut tokenizer::Tokenizer) -> Result<SceneDataba
   Ok(SceneDatabase {
     base_dir,
     film: films,
+    def_search,
   })
 }
 
@@ -220,7 +253,11 @@ struct KeyNotFoundError {
 pub enum ParserError {
   UnexpectedEnd,
   ExpectedToken(tokenizer::ExpectedTokenError),
+  ExpectedString,
   KeyNotFound(String),
+  UnknownKey(String),
+  UnknownFileFormat,
+  NoBaseDir,
 }
 
 impl From<tokenizer::UnexpectedEndError> for ParserError {
@@ -251,7 +288,11 @@ impl std::fmt::Display for ParserError {
     match &*self {
       UnexpectedEnd => write!(f, "Unexpected end of file"),
       ExpectedToken(ref e) => e.fmt(f),
+      ExpectedString => write!(f, "String value expected"),
       KeyNotFound(key) => write!(f, "No value was set for {}", key),
+      UnknownKey(key) => write!(f, "Unknown assignment {}", key),
+      UnknownFileFormat => write!(f, "Unknown file format"),
+      NoBaseDir => write!(f, "No baseDir given"),
     }
   }
 }

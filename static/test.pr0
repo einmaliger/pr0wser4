@@ -1,8 +1,9 @@
 # Test data
 # All of this is completely made up
 
-type: pr0wser3
+type: pr0wser4
 baseDir: "G:/videos"
+defSearch: "score>=73"
 
 {
     fileName: "Yuki Sava vol 1.avi"
@@ -15,6 +16,7 @@ baseDir: "G:/videos"
     end: 2362
     basic: 2007
     score: 73
+    notes: "There really is no point in including this here"
   }
 
   {

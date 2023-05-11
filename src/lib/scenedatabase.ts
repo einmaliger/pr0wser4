@@ -21,6 +21,7 @@ export interface Scene {
 export interface SceneDatabase {
   base_dir: string;
   film: Scene[];
+  def_search?: string;
 }
 
 export const EmptyScene: Scene = {
