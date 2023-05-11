@@ -40,6 +40,7 @@
         begin: selection.begin || -1,
         length: selection.end ? realLength(selection) : -1
       });
+      e.preventDefault();
     }
   }
 
