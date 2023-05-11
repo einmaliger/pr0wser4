@@ -3,7 +3,53 @@
 
   export let base_dir: string;
   export let selection: Scene;
+  export let tags: string[][];
 
+  interface TagClass {
+    name: string;
+    tags: string[];
+  }
+
+  let allTags: TagClass[] = [];
+
+  //[1].split(",").filter(v => selection.tags.includes(v))
+
+  // update alllTags
+  $: {
+    for (let cls of tags) {
+      let tagList = cls[1].split(',').map((s) => s.trim());
+      allTags.push({ name: cls[0], tags: tagList });
+    }
+  }
+
+  let myTags: TagClass[] = [];
+
+  // update mytags
+  $: {
+    let remainingTags = new Set(selection.tags);
+    myTags = [];
+    for (let cls of allTags) {
+      let result: string[] = [];
+      // find intersection
+      for (let tag of cls.tags) {
+        if (remainingTags.delete(tag)) {
+          result.push(tag);
+        }
+      }
+      if (result.length > 0) {
+        myTags.push({
+          name: cls.name,
+          tags: result
+        });
+      }
+    }
+    if (remainingTags.size > 0) {
+      myTags.push({
+        name: '<unknown>',
+        tags: Array.from(remainingTags)
+      });
+    }
+  }
   // Return displayable version of num_girls / num_boys
   function numX(n: number): string | number {
     switch (n) {
@@ -80,10 +126,27 @@
       {numX(selection.num_boys)}
     </td>
   </tr>
-  <tr>
-    <td>Tags:</td>
-    <td>{selection.tags.join(', ')}</td>
-  </tr>
+  {#if tags.length === 0}
+    <tr>
+      <td>Tags:</td>
+      <td>{selection.tags.join(', ')}</td>
+    </tr>
+  {:else}
+    <tr>
+      <td>Tags</td>
+      <td>
+        <table>
+          {#each myTags as tag}
+            <tr>
+              <td>{tag.name}</td>
+              <td>{tag.tags.join(', ')}</td>
+            </tr>
+          {/each}
+        </table>
+      </td>
+    </tr>
+  {/if}
+
   {#if selection.notes}
     <tr>
       <td>Notes:</td>

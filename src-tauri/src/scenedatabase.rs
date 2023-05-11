@@ -10,7 +10,7 @@ pub struct SceneDatabase {
   pub base_dir: String,
   pub film: Vec<Scene>,
   pub def_search: Option<String>,
-  //pub tags: Vec<String>,    // may be empty, since this is optional
+  pub tags: Vec<(String, String)>, // may be empty, since this is optional
 }
 
 #[derive(Debug, Deserialize, Serialize)]
@@ -34,41 +34,64 @@ pub struct Scene {
   pub notes: Option<String>,
 }
 
+type OrderedMaps = (Vec<(String, String)>, Vec<(String, i32)>);
+type Maps = (HashMap<String, String>, HashMap<String, i32>);
+
+fn from_unordered(o: &OrderedMaps) -> Maps {
+  let mut result: Maps = (
+    HashMap::<String, String>::new(),
+    HashMap::<String, i32>::new(),
+  );
+  for x in &(o.0) {
+    result.0.insert(x.0.clone(), x.1.clone());
+  }
+  for x in &(o.1) {
+    result.1.insert(x.0.clone(), x.1);
+  }
+  result
+}
+
+fn get_object(t: &'_ mut tokenizer::Tokenizer) -> Result<OrderedMaps, ParserError> {
+  // loop to get a list of key-value pairs.
+  let mut val: OrderedMaps = (Vec::<(String, String)>::new(), Vec::<(String, i32)>::new());
+
+  loop {
+    let key: String;
+    match &t.t {
+      Token::CHAR(b'}') => {
+        break;
+      }
+      Token::STRING(s) => {
+        key = s.to_string();
+      }
+      _ => {
+        return Result::Err(expected_string_error("<key>", &t.t));
+      }
+    }
+    t.next()?;
+    t.eat(&Token::CHAR(b':'))?;
+    match &t.t {
+      Token::STRING(s) => {
+        val.0.push((key, s.to_string()));
+      }
+      Token::NUMBER(n) => {
+        val.1.push((key, *n));
+      }
+      _ => {
+        return Result::Err(expected_string_error("<value>", &t.t));
+      }
+    }
+    t.next()?;
+  }
+
+  return Result::Ok(val);
+}
+
 impl Scene {
   fn from_tokenizer(t: &'_ mut tokenizer::Tokenizer) -> Result<Scene, ParserError> {
-    type Maps = (HashMap<String, String>, HashMap<String, i32>);
+    let orderedval = get_object(t)?;
 
-    // loop to get a list of key-value pairs.
-    let mut val: Maps = (HashMap::new(), HashMap::new());
-
-    loop {
-      let key: String;
-      match &t.t {
-        Token::CHAR(b'}') => {
-          break;
-        }
-        Token::STRING(s) => {
-          key = s.to_string();
-        }
-        _ => {
-          return Result::Err(expected_string_error("<key>", &t.t));
-        }
-      }
-      t.next()?;
-      t.eat(&Token::CHAR(b':'))?;
-      match &t.t {
-        Token::STRING(s) => {
-          val.0.insert(key, s.to_string());
-        }
-        Token::NUMBER(n) => {
-          val.1.insert(key, *n);
-        }
-        _ => {
-          return Result::Err(expected_string_error("<value>", &t.t));
-        }
-      }
-      t.next()?;
-    }
+    let mut val = from_unordered(&orderedval);
 
     // TODO:
     // The following three functions take val as parameter, which is always the val of this enclosing function.
@@ -169,6 +192,7 @@ pub fn parse_database(mut t: &'_ mut tokenizer::Tokenizer) -> Result<SceneDataba
   let mut known_format = false;
   let mut base_dir = String::new();
   let mut def_search: Option<String> = None;
+  let mut tags = Vec::<(String, String)>::new();
 
   t.next()?;
 
@@ -178,11 +202,17 @@ pub fn parse_database(mut t: &'_ mut tokenizer::Tokenizer) -> Result<SceneDataba
       _ => break,
     };
 
-    // Expect something of the form key : stringvalue
+    // Expect something of the form key : stringvalue or key : {object} (only for tags)
     t.next()?;
     t.eat(&Token::CHAR(b':'))?;
     let value = match &t.t {
       Token::STRING(s) => s.to_string(),
+      Token::CHAR(b'{') => {
+        t.next()?;
+        tags = get_object(t)?.0; // TODO: if something in .1, this should throw an error
+
+        String::from("tags object")
+      }
       _ => {
         return Result::Err(ParserError::ExpectedString);
       }
@@ -203,6 +233,7 @@ pub fn parse_database(mut t: &'_ mut tokenizer::Tokenizer) -> Result<SceneDataba
       "defSearch" => {
         def_search = Some(value);
       }
+      "tags" => {} // already handled above
       _ => return Result::Err(ParserError::UnknownKey(key)),
     }
   }
@@ -241,6 +272,7 @@ pub fn parse_database(mut t: &'_ mut tokenizer::Tokenizer) -> Result<SceneDataba
     base_dir,
     film: films,
     def_search,
+    tags,
   })
 }
 

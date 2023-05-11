@@ -137,7 +137,7 @@ impl<'a> Tokenizer<'a> {
           let word_start = self.index - 1;
           loop {
             let c = char::from(self.getc()?);
-            if !c.is_alphanumeric() {
+            if !(c.is_alphanumeric() || c == '.') {
               self.index -= 1;
               break;
             }

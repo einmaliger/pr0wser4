@@ -94,7 +94,7 @@
   <SceneSelector {selectedScenes} bind:selected />
 </div>
 <div style="width: 60%; position: fixed; right: 0; top: 0;">
-  <SceneInfo base_dir={db?.base_dir || ''} {selection} />
+  <SceneInfo base_dir={db?.base_dir || ''} {selection} tags={db?.tags || []} />
 </div>
 
 <button on:click={selectDatabase}>📁</button>
