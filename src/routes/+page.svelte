@@ -90,11 +90,13 @@
 
 <input type="text" bind:value={filterString} on:input={filterChangeEvent} />
 
-<div style="width: 40%; padding-top: 1rem;">
-  <SceneSelector {selectedScenes} bind:selected />
-</div>
-<div style="width: 60%; position: fixed; right: 0; top: 0;">
-  <SceneInfo base_dir={db?.base_dir || ''} {selection} tags={db?.tags || []} />
+<div style="display: flex; max-height: 95vh">
+  <div style="flex: 40%;" id="selector">
+    <SceneSelector {selectedScenes} bind:selected />
+  </div>
+  <div style="flex: 60%; max-height: auto;">
+    <SceneInfo base_dir={db?.base_dir || ''} {selection} tags={db?.tags || []} />
+  </div>
 </div>
 
 <button on:click={selectDatabase}>📁</button>
@@ -102,6 +104,17 @@
 <div id="statusbar">{selectedScenes.length} scenes match</div>
 
 <style>
+  :global(body) {
+    box-sizing: border-box;
+  }
+
+  #selector {
+    padding-top: 1rem;
+    overflow-y: auto;
+    overflow-x: hidden;
+    white-space: nowrap;
+  }
+
   input {
     position: fixed;
     width: 35%;
