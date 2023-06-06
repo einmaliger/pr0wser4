@@ -5,14 +5,14 @@
   export let selection: Scene;
   export let tags: string[][];
 
+  // a tag class as given in the tags object in the SceneDatabase header
   interface TagClass {
     name: string;
     tags: string[];
   }
 
+  // Collect all known tag classes (simply the tags prob, but converted to the TagClass)
   let allTags: TagClass[] = [];
-
-  //[1].split(",").filter(v => selection.tags.includes(v))
 
   // update alllTags
   $: {
@@ -22,6 +22,7 @@
     }
   }
 
+  // The tags of the current scene, sorted by TagClass
   let myTags: TagClass[] = [];
 
   // update mytags
@@ -50,6 +51,7 @@
       });
     }
   }
+  
   // Return displayable version of num_girls / num_boys
   function numX(n: number): string | number {
     switch (n) {

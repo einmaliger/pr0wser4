@@ -4,8 +4,9 @@
   export let selectedScenes: Scene[];
   export let selected: number;
 
-  let windowHeight: number;
+  let windowHeight: number; // bound to the height of the window
 
+  // select another element
   function select(id: number) {
     if (id >= selectedScenes.length) id = selectedScenes.length - 1;
     else if (id < 0) id = 0;
@@ -19,6 +20,7 @@
     }
   }
 
+  // how many elements should we scroll up/down if PgUp/PgDown is pressed
   function scrollStep(): number {
     return Math.round(windowHeight / document.getElementById('lsc0')!.offsetHeight);
   }

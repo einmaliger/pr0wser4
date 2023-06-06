@@ -34,9 +34,16 @@ pub struct Scene {
   pub notes: Option<String>,
 }
 
+// in our JSON-like format, objects contains values of either string or number (i32) type
+// we store these in separate maps
+// Since in some cases, the order is impmortant, they are initially loaded into Vec's
+// and later converted to HashMaps for convenience
+
 type OrderedMaps = (Vec<(String, String)>, Vec<(String, i32)>);
 type Maps = (HashMap<String, String>, HashMap<String, i32>);
 
+// Convert OrderedMaps to Maps
+// (the From/Into traits cannot be used here for Rust reasons)
 fn from_unordered(o: &OrderedMaps) -> Maps {
   let mut result: Maps = (
     HashMap::<String, String>::new(),
@@ -51,6 +58,9 @@ fn from_unordered(o: &OrderedMaps) -> Maps {
   result
 }
 
+// Load an object (sequence of key-value pairs) using the Tokenizer t
+// t must point to the first element after the '{'
+// After completion, it points at the closeing '}'
 fn get_object(t: &'_ mut tokenizer::Tokenizer) -> Result<OrderedMaps, ParserError> {
   // loop to get a list of key-value pairs.
   let mut val: OrderedMaps = (Vec::<(String, String)>::new(), Vec::<(String, i32)>::new());
