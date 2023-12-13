@@ -82,7 +82,7 @@
 </script>
 
 <img
-  src={`https://screenshot../?base_dir=${base_dir}&directory=${selection.directory}&${
+  src={`screenshot://localhost/?base_dir=${base_dir}&directory=${selection.directory}&${
     selection.thumb_file_name
       ? 'thumb_file_name=' + selection.thumb_file_name
       : 'file_name=' + selection.file_name
